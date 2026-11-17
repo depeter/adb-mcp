@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import shutil
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -34,15 +35,18 @@ def find_adb() -> str:
             return explicit
         raise AdbError(f"ADB_PATH is set to '{explicit}' but that is not an executable file.")
 
+    exe = "adb.exe" if sys.platform == "win32" else "adb"
     candidates: list[str | Path | None] = [shutil.which("adb")]
     for var in ("ANDROID_HOME", "ANDROID_SDK_ROOT"):
         if os.environ.get(var):
-            candidates.append(Path(os.environ[var]) / "platform-tools" / "adb")
+            candidates.append(Path(os.environ[var]) / "platform-tools" / exe)
     home = Path.home()
+    if os.environ.get("LOCALAPPDATA"):  # Android Studio's default SDK location on Windows
+        candidates.append(Path(os.environ["LOCALAPPDATA"]) / "Android" / "Sdk" / "platform-tools" / exe)
     candidates += [
-        home / "Android/Sdk/platform-tools/adb",
-        home / "android-sdk/platform-tools/adb",
-        home / "Library/Android/sdk/platform-tools/adb",
+        home / "Android" / "Sdk" / "platform-tools" / exe,
+        home / "android-sdk" / "platform-tools" / exe,
+        home / "Library" / "Android" / "sdk" / "platform-tools" / exe,
         "/opt/android-sdk/platform-tools/adb",
         "/usr/lib/android-sdk/platform-tools/adb",
     ]

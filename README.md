@@ -11,9 +11,18 @@ It runs locally as a stdio process next to your `adb` binary; the agent starts i
 Requirements: `adb` (Android platform-tools), plus either [`uv`](https://docs.astral.sh/uv/)
 or Python 3.10+.
 
+Linux and macOS:
+
 ```bash
 scripts/install.sh            # build .venv and register with Codex as "adb"
 scripts/install.sh --claude   # ...and also with Claude Code
+```
+
+Windows (PowerShell; do not use `install.sh` from Git Bash):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\install.ps1           # Codex
+powershell -ExecutionPolicy Bypass -File scripts\install.ps1 -Claude   # ...and Claude Code
 ```
 
 The script builds a virtualenv in `.venv/`, locates `adb`, and runs
@@ -24,8 +33,8 @@ Other scripts:
 
 | Script | Purpose |
 | --- | --- |
-| `scripts/check.sh` | Show the adb binary in use, tool count, and connected devices |
-| `scripts/uninstall.sh [--purge]` | Unregister from Codex/Claude; `--purge` also deletes `.venv` |
+| `scripts/check.sh`, `scripts\check.ps1` | Show the adb binary in use, tool count, and connected devices |
+| `scripts/uninstall.sh [--purge]`, `scripts\uninstall.ps1 [-Purge]` | Unregister from Codex/Claude; also delete `.venv` |
 
 ### Manual registration
 
@@ -33,7 +42,7 @@ The install script writes the equivalent of this to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.adb]
-command = "/absolute/path/to/adb-mcp/.venv/bin/adb-mcp"
+command = "/absolute/path/to/adb-mcp/.venv/bin/adb-mcp"   # Windows: '...\.venv\Scripts\adb-mcp.exe'
 env = { ADB_PATH = "/absolute/path/to/platform-tools/adb" }
 # Optional: Codex kills tool calls after 60s by default. Raise it if you record long
 # videos or install large APKs.

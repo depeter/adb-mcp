@@ -9,6 +9,13 @@
 # Safe to re-run: it replaces any existing registration of the same name.
 set -euo pipefail
 
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    echo "On Windows use the PowerShell script instead:" >&2
+    echo "  powershell -ExecutionPolicy Bypass -File scripts\\install.ps1" >&2
+    exit 1 ;;
+esac
+
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NAME="adb"
 DO_CODEX=1
@@ -38,6 +45,7 @@ else
   exit 1
 fi
 BIN="$DIR/.venv/bin/adb-mcp"
+[[ -x "$BIN" ]] || { echo "Build did not produce $BIN; not registering anything." >&2; exit 1; }
 
 # Codex starts MCP servers with a trimmed environment, so pin adb's location
 # rather than relying on PATH at launch time.
